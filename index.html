@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>PayMore - Payments v2</title>
+  
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayMore - Payment Gateway</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background: #f1f5f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 420px;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px 25px;
+            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        .container h1 {
+            font-size: 60px;
+            font-weight: 800;
+            text-align: center;
+            color: #007BFF;
+            margin-bottom: 10px;
+        }
+        .container p {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 12px 14px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        .full-width-button {
+            width: 100%;
+            padding: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(90deg, #007BFF, #0056b3);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: 0.3s;
+        }
+        .full-width-button:hover {
+            background: linear-gradient(90deg, #0056b3, #003f7d);
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .buttons button {
+            flex: 1;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(90deg, #28a745, #218838);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .buttons button:hover {
+            background: linear-gradient(90deg, #218838, #1e7e34);
+        }
+        #qr-code {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f7f9fc;
+            padding: 20px;
+            border: 1px dashed #007BFF;
+            border-radius: 10px;
+            min-height: 200px;
+        }
+        .notes {
+            font-size: 15px;
+            color: #444;
+            background: #eaf4ff;
+            padding: 15px;
+            border-radius: 8px;
+            line-height: 1.6;
+            margin-top: 20px;
+        }
+        .green-box {
+            background: rgba(144, 238, 144, 0.15);
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .green-box p {
+            margin: 0;
+            font-size: 14px;
+            color: #444;
+        }
+        .small-button {
+            margin-top: 8px;
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: bold;
+            border: 1px solid rgba(0, 128, 0, 0.5);
+            color: rgba(0, 128, 0, 0.8);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            background-color: transparent;
+        }
+        .small-button:hover {
+            background-color: rgba(0, 128, 0, 0.1);
+        }
+        .footer-text {
+            font-size: 13px;
+            color: #000;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PayMore</h1>
+        <p>Generate a Secure QR Code And Pay Instantly Using your favorite UPI application.</p>
+        
+        <label for="sender-name"><strong>Sender Name</strong></label>
+        <input type="text" id="sender-name" placeholder="Enter your name">
+
+        <label for="amount"><strong>Enter Amount</strong></label>
+        <input type="number" id="amount" placeholder="Enter amount to pay" min="1">
+
+        <button class="full-width-button" onclick="generateQRCode()">Generate QR Code</button>
+        
+        <div id="qr-code">QR Code will appear here</div>
+
+        <div class="buttons">
+            <button id="pay-btn" style="display: none;" onclick="redirectToUPI()">Pay Now</button>
+            <button id="save-btn" style="display: none;" onclick="saveQRCode()">Save QR Code</button>
+        </div>
+
+        <div class="notes">
+            <strong>Note:</strong>
+            <ul>
+                <li>Use any UPI app to scan the QR code.</li>
+                <li>Payments will be automatically processed and verified by the PayMore Merchant .</li>
+            </ul>
+        </div>
+        
+        <div class="green-box">
+            <p>Get Your Own Secure PayMore Integration</p>
+            <button class="small-button" onclick="redirectToTelegram()">Get Now</button>
+        </div>
+
+        <div class="footer-text">
+            © 2024 PayMore Pvt Ltd.
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        const upiID = "akistore218@okicici"; // Constant UPI ID
+        let upiLink = ""; // To hold the generated UPI link
+
+        function generateQRCode() {
+            const name = document.getElementById("sender-name").value.trim();
+            const amount = document.getElementById("amount").value;
+
+            if (!name || !amount) {
+                alert("Please enter all required fields!");
+                return;
+            }
+
+            const note = `Payment by ${encodeURIComponent(name)}`;
+            upiLink = `upi://pay?pa=${upiID}&pn=PayMore&am=${amount}&cu=INR&tn=${note}`;
+
+            const qrCodeContainer = document.getElementById("qr-code");
+            qrCodeContainer.innerHTML = "";
+            new QRCode(qrCodeContainer, { text: upiLink, width: 200, height: 200 });
+            document.getElementById("pay-btn").style.display = "block";
+            document.getElementById("save-btn").style.display = "block";
+        }
+
+        function redirectToUPI() {
+            if (upiLink) window.location.href = upiLink;
+            else alert("Generate QR Code first!");
+        }
+
+        function saveQRCode() {
+            const qrImg = document.querySelector("#qr-code img");
+            if (qrImg) {
+                const link = document.createElement("a");
+                link.href = qrImg.src;
+                link.download = "PayMore_QR_Code.png";
+                link.click();
+            }
+        }
+
+        function redirectToTelegram() {
+            window.location.href = "https://t.me/curiosityandyou";
+        }
+    </script>
+</body>
+</html>
+<!-- partial -->
+  
+</body>
+</html>
